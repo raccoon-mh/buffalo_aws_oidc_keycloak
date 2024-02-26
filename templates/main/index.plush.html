@@ -64,5 +64,37 @@
 
     </form>
   <% } %>
+
+  <%= if (vmList) {%>
+    <table class="table table-striped">
+        <thead>
+          <tr text-align="left">
+            <th class="centered">InstanceID</th>
+            <th>InstanceType</th>
+            <th>PublicDNS</th>
+            <th>State</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <%= for (r) in vmList { %>
+            <tr>
+              <td class="centered">
+                <%= r.InstanceID %>
+              </td>
+              <td>
+                <%= r.InstanceType %>
+              </td>
+              <td>
+                <%= r.PublicDNS %>
+              </td>
+              <td><code><%= r.State %></code></td>
+            </tr>
+          <% } %>
+
+        </tbody>
+      </table>
+
+  <% } %>
 </div>
 <div class="foot"> <span> Powered by <a href="http://gobuffalo.io/">gobuffalo.io</a></span> </div>

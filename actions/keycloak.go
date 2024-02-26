@@ -147,10 +147,5 @@ func GetStsTokenHandler(c buffalo.Context) error {
 
 	c.Set("stsxml", stsxml)
 
-	// c.Set("Arn", stsxml.AssumeRoleWithWebIdentityResult.AssumedRoleUser.Arn)
-	// c.Set("SessionToken", stsxml.AssumeRoleWithWebIdentityResult.Credentials.SessionToken)
-	// c.Set("AccessKeyId", stsxml.AssumeRoleWithWebIdentityResult.Credentials.AccessKeyId)
-	// c.Set("SecretAccessKey", stsxml.AssumeRoleWithWebIdentityResult.Credentials.SecretAccessKey)
-
 	return c.Render(http.StatusOK, r.HTML("main/index.plush.html"))
 }

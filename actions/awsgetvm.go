@@ -11,6 +11,13 @@ import (
 	"github.com/gobuffalo/buffalo"
 )
 
+type VmData struct {
+	InstanceID   string
+	InstanceType string
+	PublicDNS    string
+	State        string
+}
+
 func GetVmHandler(c buffalo.Context) error {
 	MyAccessKeyId := c.Param("AccessKeyId")
 	MySecretAccessKey := c.Param("SecretAccessKey")
@@ -40,15 +47,21 @@ func GetVmHandler(c buffalo.Context) error {
 		return c.Redirect(302, "/")
 	}
 
+	var vmList []VmData
+
 	for _, reservation := range result.Reservations {
 		for _, instance := range reservation.Instances {
-			fmt.Println("Instance ID:", *instance.InstanceId)
-			fmt.Println("Instance Type:", *instance.InstanceType)
-			fmt.Println("Public DNS:", *instance.PublicDnsName)
-			fmt.Println("State:", *instance.State.Name)
-			fmt.Println("-----")
+			vm := VmData{
+				InstanceID:   *instance.InstanceId,
+				InstanceType: *instance.InstanceType,
+				PublicDNS:    *instance.PublicDnsName,
+				State:        *instance.State.Name,
+			}
+			vmList = append(vmList, vm)
 		}
 	}
+
+	c.Set("vmList", vmList)
 
 	return c.Render(http.StatusOK, r.HTML("main/index.plush.html"))
 }
