@@ -12,10 +12,20 @@
   <body>
 
     <div class="container">
+      
+      <%= if (Name) {%>
+        <button type="button" class="btn btn-warning" onclick="location.href='/user/logout'">Logout</button>
+        <button type="button" class="btn btn-primary">Welcome! <%= Name %>!!</button>
+        <% } %>
+    </div>
+    <br>
+  
+    <div class="container">
       <%= partial("flash.html") %>
       <%= yield %>
     </div>
 
     <%= javascriptTag("application.js") %>
+
   </body>
 </html>

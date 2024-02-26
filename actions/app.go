@@ -1,7 +1,10 @@
 package actions
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"sync"
 
 	"buffalo_aws_oidc_keycloak/locales"
@@ -61,6 +64,16 @@ func App() *buffalo.App {
 
 		app.GET("/", HomeHandler)
 
+		app.GET("/login", LoginHandler)
+		app.POST("/login", LoginHandler)
+
+		auth := app.Group("/user")
+		auth.Use(RequiresTokenMiddleware)
+		auth.GET("/home", MainHandler)
+		auth.GET("/logout", LogoutHandler)
+		auth.GET("/sts", GetStsTokenHandler)
+		auth.POST("/vm", GetVmHandler)
+
 		app.ServeFiles("/", http.FS(public.FS())) // serve files from the public directory
 	})
 
@@ -89,4 +102,58 @@ func forceSSL() buffalo.MiddlewareFunc {
 		SSLRedirect:     ENV == "production",
 		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 	})
+}
+
+type UserData struct {
+	Sub               string `json:"sub"`
+	EmailVerified     bool   `json:"email_verified"`
+	Name              string `json:"name"`
+	PreferredUsername string `json:"preferred_username"`
+	GivenName         string `json:"given_name"`
+	FamilyName        string `json:"family_name"`
+	Email             string `json:"email"`
+}
+
+func RequiresTokenMiddleware(next buffalo.Handler) buffalo.Handler {
+	return func(c buffalo.Context) error {
+		bearerToken := c.Session().Get("access_token")
+		if bearerToken == nil {
+			c.Flash().Add("danger", "YOU ARD NOT AUTHORIZED!!")
+			return c.Redirect(302, "/")
+		}
+
+		keycloakHost := os.Getenv("keycloakHost")
+		realm := os.Getenv("realm")
+		keycloakUrl := "https://" + keycloakHost + "/realms/" + realm + "/protocol/openid-connect/userinfo"
+
+		req, _ := http.NewRequest("GET", keycloakUrl, nil)
+		req.Header.Set("Authorization", "Bearer "+bearerToken.(string))
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			c.Flash().Add("danger", err.Error())
+			return c.Redirect(302, "/")
+		}
+
+		defer resp.Body.Close()
+
+		body, _ := ioutil.ReadAll(resp.Body)
+		if resp.Status != "200 OK" {
+			c.Flash().Add("danger", "TOKEN EXPIRED")
+			return c.Redirect(302, "/")
+		}
+
+		var userData UserData
+		jsonerr := json.Unmarshal(body, &userData)
+		if err != nil {
+			c.Flash().Add("danger", "USER INFO ERR")
+			c.Flash().Add("danger", jsonerr.Error())
+			return c.Redirect(302, "/")
+		}
+
+		c.Set("Name", userData.Name)
+
+		return next(c)
+	}
 }
