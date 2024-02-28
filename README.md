@@ -6,8 +6,7 @@
 - http 프로토콜 사용으로 단순 ReadOnly 테스트 및 학습 용도로써 사용 권고.
 
 ## Layout
-![Uploading Untitled (11).png…]()
-
+![Untitled (11)](https://github.com/raccoon-mh/buffalo_aws_oidc_keycloak/assets/130422754/5d73d5fb-3e59-4f9d-8528-ad3d61ceabb1)
 
 # env
 
