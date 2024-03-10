@@ -18,19 +18,40 @@ type VmData struct {
 	State        string
 }
 
-func GetVmHandler(c buffalo.Context) error {
-	MyAccessKeyId := c.Param("AccessKeyId")
-	MySecretAccessKey := c.Param("SecretAccessKey")
-	MySessionToken := c.Param("SessionToken")
+func GetVmListPageHandler(c buffalo.Context) error {
+	c.Set("pretitle", "EC2 instacne")
+	c.Set("title", "List")
+
+	return c.Render(http.StatusOK, tr.HTML("ec2instance/list.html"))
+}
+
+func VmlifecyclePageHandler(c buffalo.Context) error {
+	c.Set("pretitle", "EC2 instacne")
+	c.Set("title", "LifeCycle")
+
+	return c.Render(http.StatusOK, tr.HTML("ec2instance/list.html"))
+}
+
+func VMCreatePageHandler(c buffalo.Context) error {
+	c.Set("pretitle", "EC2 instacne")
+	c.Set("title", "Create")
+
+	return c.Render(http.StatusOK, tr.HTML("ec2instance/list.html"))
+}
+
+func GetVmListHandler(c buffalo.Context) error {
+	accessKeyId := c.Param("accessKeyId")
+	secretAccessKey := c.Param("secretAccessKey")
+	sessionToken := c.Param("sessionToken")
 
 	sess := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String("us-west-2"),
 	}))
 
 	creds := credentials.NewStaticCredentials(
-		*aws.String(MyAccessKeyId),
-		*aws.String(MySecretAccessKey),
-		*aws.String(MySessionToken),
+		*aws.String(accessKeyId),
+		*aws.String(secretAccessKey),
+		*aws.String(sessionToken),
 	)
 
 	ec2Svc := ec2.New(sess, &aws.Config{
@@ -61,7 +82,7 @@ func GetVmHandler(c buffalo.Context) error {
 		}
 	}
 
-	c.Set("vmList", vmList)
+	// c.Set("vmList", vmList)
 
-	return c.Render(http.StatusOK, r.HTML("main/index.plush.html"))
+	return c.Render(http.StatusOK, r.JSON(vmList))
 }

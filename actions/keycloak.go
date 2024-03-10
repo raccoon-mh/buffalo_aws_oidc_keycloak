@@ -70,15 +70,16 @@ func LoginHandler(c buffalo.Context) error {
 			fmt.Println("Error parsing JSON:", err)
 		}
 		c.Session().Set("access_token", tokenresponse.AccessToken)
+		fmt.Println(tokenresponse.AccessToken)
 
-		return c.Redirect(302, "/user/home")
+		return c.Redirect(302, "/")
 	}
-	return c.Render(http.StatusOK, r.HTML("auth/index.plush.html"))
+	return c.Render(http.StatusOK, r.HTML("auth/sign-in.html"))
 }
 
 func LogoutHandler(c buffalo.Context) error {
 	c.Session().Clear()
-	return c.Redirect(302, "/")
+	return c.Redirect(302, "/login")
 }
 
 type AssumeRoleWithWebIdentityResponse struct {
@@ -110,9 +111,23 @@ type ResponseMetadata struct {
 	RequestId string `xml:"RequestId"`
 }
 
+func GetStsTokenAWSPageHandler(c buffalo.Context) error {
+	c.Set("pretitle", "sts Token")
+	c.Set("title", "AWS")
+
+	RoleArns := c.Session().Get("ClientRoles").([]string)
+	c.Set("RoleArns", RoleArns)
+
+	return c.Render(http.StatusOK, tr.HTML("sts/aws.html"))
+}
+
 func GetStsTokenHandler(c buffalo.Context) error {
 
-	RoleArn := os.Getenv("RoleArn")
+	// RoleArn := os.Getenv("RoleArn")
+	rolearn := c.Param("rolearn")
+	fmt.Println(rolearn)
+	bearerToken := c.Session().Get("access_token").(string)
+
 	stsurl := "https://sts.amazonaws.com"
 
 	paramData := url.Values{
@@ -120,8 +135,8 @@ func GetStsTokenHandler(c buffalo.Context) error {
 		"Action":           {"AssumeRoleWithWebIdentity"},
 		"Version":          {"2011-06-15"},
 		"RoleSessionName":  {"web-identity-federation"},
-		"RoleArn":          {RoleArn},
-		"WebIdentityToken": {c.Session().Get("access_token").(string)},
+		"RoleArn":          {rolearn},
+		"WebIdentityToken": {bearerToken},
 	}
 
 	stsurl += "?" + paramData.Encode()
@@ -145,7 +160,5 @@ func GetStsTokenHandler(c buffalo.Context) error {
 		fmt.Println("Error parsing XML:", err)
 	}
 
-	c.Set("stsxml", stsxml)
-
-	return c.Render(http.StatusOK, r.HTML("main/index.plush.html"))
+	return c.Render(http.StatusOK, r.JSON(stsxml))
 }

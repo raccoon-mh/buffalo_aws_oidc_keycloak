@@ -7,7 +7,12 @@ import (
 	"github.com/gobuffalo/buffalo"
 )
 
-//go:embed * */*
+// ???????????? TODO : 정규식 표현이 이상함...
+//
+//go:embed *.html
+//go:embed */*.html
+//go:embed */*/*.html
+//go:embed */*/*/*.html
 var files embed.FS
 
 func FS() fs.FS {

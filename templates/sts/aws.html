@@ -1,0 +1,106 @@
+<%= partial("partials/layout/pageheader/default.html") %>
+
+<div class="page-body">
+
+    <div class="container-xl">
+
+        <div class="row row-cards">
+
+            <div class="col-12">
+
+                <div class="card">
+
+                    <div class="card-header">
+                        <h4 class="card-title">AWS STS token</h4>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+                            <input id="authenticity_token" name="authenticity_token" value="<%= authenticity_token %>" hidden>
+
+                            <div class="mb-3">
+                                <label class="form-label">Audience</label>
+                                <input type="Audience" class="form-control" readonly id="Audience" name="Audience" value="<#%= stsxml.AssumeRoleWithWebIdentityResult.Audience%>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">AssumedRoleId</label>
+                                <input type="Audience" class="form-control" readonly id="AssumedRoleId" name="AssumedRoleId" value="<#%= stsxml.AssumeRoleWithWebIdentityResult.AssumedRoleUser.AssumedRoleId%>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Arn</label>
+                                <input type="Audience" class="form-control" readonly id="Arn" name="Arn" value="<#%= stsxml.AssumeRoleWithWebIdentityResult.AssumedRoleUser.Arn%>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Provider</label>
+                                <input type="text" class="form-control" readonly id="Provider" name="Provider" value="<#%= stsxml.AssumeRoleWithWebIdentityResult.Provider%>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">AccessKeyId</label>
+                                <input type="text" class="form-control" readonly id="AccessKeyId" name="AccessKeyId" value="<#%= stsxml.AssumeRoleWithWebIdentityResult.Credentials.AccessKeyId%>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">SecretAccessKey</label>
+                                <input type="text" class="form-control" readonly id="SecretAccessKey" name="SecretAccessKey" value="<#%= stsxml.AssumeRoleWithWebIdentityResult.Credentials.SecretAccessKey%>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">SessionToken</label>
+                                <input type="text" class="form-control" readonly id="SessionToken" name="SessionToken" value="<#%= stsxml.AssumeRoleWithWebIdentityResult.Credentials.SessionToken%>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Expiration</label>
+                                <input type="text" class="form-control" readonly id="Expiration" name="Expiration" value="<#%= stsxml.AssumeRoleWithWebIdentityResult.Credentials.Expiration%>">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">RequestId</label>
+                                <input type="text" class="form-control" readonly id="RequestId" name="RequestId" value="<#%= stsxml.ResponseMetadata.RequestId%>">
+                            </div>
+
+                            
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer text-end">
+
+                        <div class="input-group">
+
+                            <input type="text" class="form-control" id="selectedRolearn" placeholder="Select Your Role Arn" readonly>
+                            <button class="btn btn-primary ms-auto" id="fetchDataBtn">
+                                GET STS
+                                <div class="spinner-border" id="spinner" style="display: none;"></div>
+                            </button>
+                            <button data-bs-toggle="dropdown" type="button" class="btn dropdown-toggle dropdown-toggle-split"></button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <%= if (RoleArns) { %>
+                                    <%= for (role) in RoleArns { %>
+                                        <button class="dropdown-item" name="rolearn"><%=role%></button>
+                                    <% } %>
+                                <% } else { %>
+                                    <a class="dropdown-item" href="#">
+                                        NO ROLE ARN
+                                    </a>
+                                <% } %>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<%= javascriptTag("pages/sts/aws.js") %>

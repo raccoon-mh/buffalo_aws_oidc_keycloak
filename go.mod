@@ -4,10 +4,12 @@ go 1.21.4
 
 require (
 	github.com/aws/aws-sdk-go v1.50.25
+	github.com/davecgh/go-spew v1.1.1
 	github.com/gobuffalo/buffalo v1.1.0
 	github.com/gobuffalo/envy v1.10.2
 	github.com/gobuffalo/middleware v1.0.0
 	github.com/gobuffalo/suite/v4 v4.0.4
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/unrolled/secure v1.14.0
 )
 
@@ -15,7 +17,6 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect

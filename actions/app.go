@@ -62,17 +62,24 @@ func App() *buffalo.App {
 		// Setup and use translations:
 		app.Use(translations())
 
+		app.Use(RequiresTokenMiddleware)
+		app.Middleware.Skip(RequiresTokenMiddleware, LoginHandler)
+
 		app.GET("/", HomeHandler)
 
 		app.GET("/login", LoginHandler)
+		app.GET("/logout", LogoutHandler)
 		app.POST("/login", LoginHandler)
 
-		auth := app.Group("/user")
-		auth.Use(RequiresTokenMiddleware)
-		auth.GET("/home", MainHandler)
-		auth.GET("/logout", LogoutHandler)
-		auth.GET("/sts", GetStsTokenHandler)
-		auth.POST("/vm", GetVmHandler)
+		app.GET("/logout", LogoutHandler)
+		app.GET("/sts/aws", GetStsTokenAWSPageHandler)
+		app.POST("/sts/aws/token", GetStsTokenHandler)
+
+		app.GET("/ec2/list", GetVmListPageHandler)
+		app.POST("/ec2/list", GetVmListHandler)
+
+		app.GET("/ec2/lifecycle", VmlifecyclePageHandler)
+		app.GET("/ec2/create", VMCreatePageHandler)
 
 		app.ServeFiles("/", http.FS(public.FS())) // serve files from the public directory
 	})
@@ -105,13 +112,13 @@ func forceSSL() buffalo.MiddlewareFunc {
 }
 
 type UserData struct {
-	Sub               string `json:"sub"`
-	EmailVerified     bool   `json:"email_verified"`
-	Name              string `json:"name"`
-	PreferredUsername string `json:"preferred_username"`
-	GivenName         string `json:"given_name"`
-	FamilyName        string `json:"family_name"`
-	Email             string `json:"email"`
+	Sub               string   `json:"sub"`
+	ClientRoles       []string `json:"client_roles"`
+	Name              string   `json:"name"`
+	GroupMembership   []string `json:"Group_Membership"`
+	PreferredUsername string   `json:"preferred_username"`
+	GivenName         string   `json:"given_name"`
+	FamilyName        string   `json:"family_name"`
 }
 
 func RequiresTokenMiddleware(next buffalo.Handler) buffalo.Handler {
@@ -119,7 +126,7 @@ func RequiresTokenMiddleware(next buffalo.Handler) buffalo.Handler {
 		bearerToken := c.Session().Get("access_token")
 		if bearerToken == nil {
 			c.Flash().Add("danger", "YOU ARD NOT AUTHORIZED!!")
-			return c.Redirect(302, "/")
+			return c.Redirect(302, "/login")
 		}
 
 		keycloakHost := os.Getenv("keycloakHost")
@@ -133,7 +140,7 @@ func RequiresTokenMiddleware(next buffalo.Handler) buffalo.Handler {
 		resp, err := client.Do(req)
 		if err != nil {
 			c.Flash().Add("danger", err.Error())
-			return c.Redirect(302, "/")
+			return c.Redirect(302, "/login")
 		}
 
 		defer resp.Body.Close()
@@ -141,7 +148,7 @@ func RequiresTokenMiddleware(next buffalo.Handler) buffalo.Handler {
 		body, _ := ioutil.ReadAll(resp.Body)
 		if resp.Status != "200 OK" {
 			c.Flash().Add("danger", "TOKEN EXPIRED")
-			return c.Redirect(302, "/")
+			return c.Redirect(302, "/login")
 		}
 
 		var userData UserData
@@ -149,10 +156,11 @@ func RequiresTokenMiddleware(next buffalo.Handler) buffalo.Handler {
 		if err != nil {
 			c.Flash().Add("danger", "USER INFO ERR")
 			c.Flash().Add("danger", jsonerr.Error())
-			return c.Redirect(302, "/")
+			return c.Redirect(302, "/login")
 		}
 
 		c.Set("Name", userData.Name)
+		c.Session().Set("ClientRoles", userData.ClientRoles)
 
 		return next(c)
 	}

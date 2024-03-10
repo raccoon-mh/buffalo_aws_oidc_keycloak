@@ -9,5 +9,7 @@ import (
 // HomeHandler is a default handler to serve up
 // a home page.
 func HomeHandler(c buffalo.Context) error {
-	return c.Render(http.StatusOK, r.HTML("home/index.plush.html"))
+	c.Set("pretitle", "Noting here")
+	c.Set("title", "iamDash")
+	return c.Render(http.StatusOK, tr.HTML("home/dash.html"))
 }

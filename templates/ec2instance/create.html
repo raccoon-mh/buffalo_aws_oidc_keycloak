@@ -1,0 +1,40 @@
+<%= partial("partials/layout/pageheader/default.html") %>
+
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row row-cards">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="subheader">Access_Key_Id</div>
+                        <div class="h3 m-0" id="AccessKeyIdCard">******</div>
+                    </div>
+                    <input id="authenticity_token" name="authenticity_token" value="<%= authenticity_token %>" hidden>
+                    <input id="AccessKeyId" name="AccessKeyId" value="" hidden>
+                    <input id="SecretAccessKey" name="SecretAccessKey" value="" hidden>
+                    <input id="SessionToken" name="SessionToken" value="" hidden>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                    <div class="subheader">Expiration</div>
+                    <div class="h3 m-0" id="Expirationcard">******</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body d-grid">
+                        <button class="btn btn-primary" id="fetchDataBtn">
+                            GET VM LIST
+                            <div class="spinner-border spinner-border-sm" id="spinner" style="display: none;"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%= javascriptTag("pages/ec2instance/lifecycle.js") %>

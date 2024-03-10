@@ -13,8 +13,8 @@ const configurator = {
         './assets/css/application.scss',
       ],
     }
-
-    Glob.sync("./assets/*/*.*").forEach((entry) => {
+    // Glob.sync("./assets/*/*.*").forEach((entry) => {
+    Glob.sync("./assets/*/*/*/*.*").forEach((entry) => {
       if (entry === './assets/css/application.scss') {
         return
       }
